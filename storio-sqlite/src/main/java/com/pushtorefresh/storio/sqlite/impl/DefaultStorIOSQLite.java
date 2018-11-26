@@ -1,7 +1,10 @@
 package com.pushtorefresh.storio.sqlite.impl;
 
+import android.arch.persistence.db.SupportSQLiteOpenHelper;
+import android.arch.persistence.db.SupportSQLiteQueryBuilder;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -45,7 +48,7 @@ import static java.util.Collections.unmodifiableMap;
 public class DefaultStorIOSQLite extends StorIOSQLite {
 
     @NonNull
-    private final SQLiteOpenHelper sqLiteOpenHelper;
+    private final SupportSQLiteOpenHelper sqLiteOpenHelper;
 
     @NonNull
     private final ChangesBus<Changes> changesBus = new ChangesBus<Changes>(RX_JAVA_IS_IN_THE_CLASS_PATH);
@@ -60,7 +63,7 @@ public class DefaultStorIOSQLite extends StorIOSQLite {
     private final Internal lowLevel;
 
     protected DefaultStorIOSQLite(
-            @NonNull SQLiteOpenHelper sqLiteOpenHelper,
+            @NonNull SupportSQLiteOpenHelper sqLiteOpenHelper,
             @NonNull TypeMappingFinder typeMappingFinder,
             @Nullable Scheduler defaultScheduler
     ) {
@@ -168,11 +171,11 @@ public class DefaultStorIOSQLite extends StorIOSQLite {
          * Required: Specifies SQLite Open helper for internal usage.
          * <p>
          *
-         * @param sqliteOpenHelper a SQLiteOpenHelper for internal usage.
+         * @param sqliteOpenHelper a SupportSQLiteOpenHelper for internal usage.
          * @return builder.
          */
         @NonNull
-        public CompleteBuilder sqliteOpenHelper(@NonNull SQLiteOpenHelper sqliteOpenHelper) {
+        public CompleteBuilder sqliteOpenHelper(@NonNull SupportSQLiteOpenHelper sqliteOpenHelper) {
             checkNotNull(sqliteOpenHelper, "Please specify SQLiteOpenHelper instance");
             return new CompleteBuilder(sqliteOpenHelper);
         }
@@ -184,7 +187,7 @@ public class DefaultStorIOSQLite extends StorIOSQLite {
     public static final class CompleteBuilder {
 
         @NonNull
-        private final SQLiteOpenHelper sqLiteOpenHelper;
+        private final SupportSQLiteOpenHelper sqLiteOpenHelper;
 
         private Map<Class<?>, SQLiteTypeMapping<?>> typeMapping;
 
@@ -194,7 +197,7 @@ public class DefaultStorIOSQLite extends StorIOSQLite {
         @Nullable
         private Scheduler defaultScheduler = RX_JAVA_IS_IN_THE_CLASS_PATH ? Schedulers.io() : null;
 
-        CompleteBuilder(@NonNull SQLiteOpenHelper sqLiteOpenHelper) {
+        CompleteBuilder(@NonNull SupportSQLiteOpenHelper sqLiteOpenHelper) {
             this.sqLiteOpenHelper = sqLiteOpenHelper;
         }
 
@@ -342,7 +345,7 @@ public class DefaultStorIOSQLite extends StorIOSQLite {
         public Cursor rawQuery(@NonNull RawQuery rawQuery) {
             return sqLiteOpenHelper
                     .getReadableDatabase()
-                    .rawQuery(
+                    .query(
                             rawQuery.query(),
                             nullableArrayOfStrings(rawQuery.args())
                     );
@@ -355,18 +358,18 @@ public class DefaultStorIOSQLite extends StorIOSQLite {
         @NonNull
         @Override
         public Cursor query(@NonNull Query query) {
-            return sqLiteOpenHelper
-                    .getReadableDatabase().query(
-                            query.distinct(),
-                            query.table(),
-                            nullableArrayOfStringsFromListOfStrings(query.columns()),
-                            nullableString(query.where()),
-                            nullableArrayOfStringsFromListOfStrings(query.whereArgs()),
-                            nullableString(query.groupBy()),
-                            nullableString(query.having()),
-                            nullableString(query.orderBy()),
-                            nullableString(query.limit())
-                    );
+            SupportSQLiteQueryBuilder supportQuery = SupportSQLiteQueryBuilder.builder(query.table())
+                    .columns(nullableArrayOfStringsFromListOfStrings(query.columns()))
+                    .selection(query.where(), nullableArrayOfStringsFromListOfStrings(query.whereArgs()))
+                    .groupBy(query.groupBy())
+                    .having(query.having())
+                    .orderBy(query.orderBy())
+                    .limit(query.limit());
+
+            if (query.distinct()) {
+                supportQuery.distinct();
+            }
+            return sqLiteOpenHelper.getReadableDatabase().query(supportQuery.create());
         }
 
         /**
@@ -377,9 +380,9 @@ public class DefaultStorIOSQLite extends StorIOSQLite {
         public long insert(@NonNull InsertQuery insertQuery, @NonNull ContentValues contentValues) {
             return sqLiteOpenHelper
                     .getWritableDatabase()
-                    .insertOrThrow(
+                    .insert(
                             insertQuery.table(),
-                            insertQuery.nullColumnHack(),
+                            SQLiteDatabase.CONFLICT_NONE,
                             contentValues
                     );
         }
@@ -392,11 +395,10 @@ public class DefaultStorIOSQLite extends StorIOSQLite {
         public long insertWithOnConflict(@NonNull InsertQuery insertQuery, @NonNull ContentValues contentValues, int conflictAlgorithm) {
             return sqLiteOpenHelper
                     .getWritableDatabase()
-                    .insertWithOnConflict(
+                    .insert(
                             insertQuery.table(),
-                            insertQuery.nullColumnHack(),
-                            contentValues,
-                            conflictAlgorithm
+                            conflictAlgorithm,
+                            contentValues
                     );
         }
 
@@ -410,6 +412,7 @@ public class DefaultStorIOSQLite extends StorIOSQLite {
                     .getWritableDatabase()
                     .update(
                             updateQuery.table(),
+                            SQLiteDatabase.CONFLICT_NONE,
                             contentValues,
                             nullableString(updateQuery.where()),
                             nullableArrayOfStringsFromListOfStrings(updateQuery.whereArgs())
@@ -514,7 +517,7 @@ public class DefaultStorIOSQLite extends StorIOSQLite {
          */
         @NonNull
         @Override
-        public SQLiteOpenHelper sqliteOpenHelper() {
+        public SupportSQLiteOpenHelper sqliteOpenHelper() {
             return sqLiteOpenHelper;
         }
     }

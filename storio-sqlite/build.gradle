@@ -3,7 +3,7 @@ apply plugin: 'checkstyle'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         versionName VERSION_NAME
@@ -21,6 +21,8 @@ android {
 dependencies {
     compile  libraries.storIOCommon
     provided libraries.rxJava
+
+    compile libraries.sqlite
 
     testCompile  libraries.junit
     testCompile  libraries.assertJ

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId 'com.pushtorefresh.storio.basic_sample'
@@ -23,6 +23,7 @@ android {
 dependencies {
     compile libraries.appCompat
     compile libraries.recyclerView
+    compile libraries.sqliteFramework
 
     compile libraries.storIOSQLite
 

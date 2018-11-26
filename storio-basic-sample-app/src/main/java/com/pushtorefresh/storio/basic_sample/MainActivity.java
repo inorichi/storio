@@ -1,9 +1,10 @@
 package com.pushtorefresh.storio.basic_sample;
 
+import android.arch.persistence.db.SupportSQLiteOpenHelper;
+import android.arch.persistence.db.framework.FrameworkSQLiteOpenHelperFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
@@ -16,8 +17,6 @@ import com.pushtorefresh.storio.sqlite.operations.put.PutResults;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 public class MainActivity extends AppCompatActivity {
 
     private StorIOSQLite storIOSQLite;
@@ -29,8 +28,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SupportSQLiteOpenHelper.Configuration config = SupportSQLiteOpenHelper.Configuration.builder(this)
+                .name("sample_db")
+                .callback(new DbOpenCallback())
+                .build();
+
         storIOSQLite = DefaultStorIOSQLite.builder()
-            .sqliteOpenHelper(new DbOpenHelper(this))
+            .sqliteOpenHelper(new FrameworkSQLiteOpenHelperFactory().create(config))
             .addTypeMapping(Tweet.class, new TweetSQLiteTypeMapping())
             .build();
 
