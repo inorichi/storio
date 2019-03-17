@@ -31,6 +31,7 @@ android.libraryVariants.all { variant ->
 
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'com.github.dcendents.android-maven'
 
 def isReleaseBuild() {
     return VERSION_NAME.contains('SNAPSHOT') == false
@@ -120,7 +121,7 @@ afterEvaluate { project ->
 
         classpath += project.files(android.getBootClasspath())
         classpath += configurations.compileJavadoc
-        classpath += configurations.compile + configurations.provided
+        // QUICK FIX classpath += configurations.compile + configurations.provided
 
         failOnError false // Sorry, but we can not make it work with dependencies between modules
 
