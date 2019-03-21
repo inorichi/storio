@@ -163,23 +163,7 @@ afterEvaluate { project ->
         required { isReleaseBuild() && gradle.taskGraph.hasTask('uploadArchives') }
         sign configurations.archives
     }
-
-    task androidJavadocs(type: Javadoc) {
-        source = android.sourceSets.main.java.srcDirs
-
-        classpath += project.android.libraryVariants.toList().first().javaCompile.classpath
-
-        failOnError false // Sorry, but we can not make it work with dependencies between modules
-
-        exclude '**/BuildConfig.java'
-        exclude '**/R.java'
-    }
-
-    task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
-        classifier = 'javadoc'
-        from androidJavadocs.destinationDir
-    }
-
+    
     task androidSourcesJar(type: Jar) {
         classifier = 'sources'
         from android.sourceSets.main.java.sourceFiles
@@ -187,6 +171,5 @@ afterEvaluate { project ->
 
     artifacts {
         archives androidSourcesJar
-        archives androidJavadocsJar
     }
 }
