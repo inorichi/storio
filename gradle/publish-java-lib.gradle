@@ -79,7 +79,7 @@ afterEvaluate { project ->
                     // Resolve dependencies to other modules
                     pom.whenConfigured { pom ->
                         pom.dependencies.findAll { dep -> dep.groupId == rootProject.name }.collect { dep ->
-                            dep.groupId = pom.groupId = project.GROUP
+                            dep.groupId = pom.groupId = GROUP
                             dep.version = pom.version = project.VERSION_NAME
                         }
                     }
@@ -134,7 +134,7 @@ afterEvaluate { project ->
                     // Resolve dependencies to other modules
                     pom.whenConfigured { pom ->
                         pom.dependencies.findAll { dep -> dep.groupId == rootProject.name }.collect { dep ->
-                            dep.groupId = pom.groupId = project.GROUP
+                            dep.groupId = pom.groupId = GROUP
                             dep.version = pom.version = project.VERSION_NAME
                         }
                     }

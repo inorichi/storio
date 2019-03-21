@@ -28,7 +28,7 @@ dependencies {
     testCompile  libraries.assertJ
     testCompile  libraries.mockitoCore
     testCompile  libraries.equalsVerifier
-    testCompile  libraries.storIOTestCommon
+    //testCompile  libraries.storIOTestCommon
     testCompile  libraries.privateConstructorChecker
     testCompile  libraries.guava
     testCompile  libraries.robolectric

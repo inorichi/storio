@@ -73,7 +73,7 @@ ext.libraries = [
         storIOCommonAnnotationsProcessor          : project(':storio-common-annotations-processor'),
         storIOSQLiteAnnotationsProcessor          : project(':storio-sqlite-annotations-processor'),
         storIOContentResolverAnnotationsProcessor : project(':storio-content-resolver-annotations-processor'),
-        storIOTestCommon                          : project(':storio-test-common'),
+        //storIOTestCommon                          : project(':storio-test-common'),
 
         // Libraries for tests and sample app
         junit                          : 'junit:junit:4.12',

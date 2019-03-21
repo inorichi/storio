@@ -29,7 +29,7 @@ dependencies {
     testCompile libraries.junit
     testCompile libraries.assertJ
     testCompile libraries.mockitoCore
-    testCompile libraries.storIOTestCommon
+    //testCompile libraries.storIOTestCommon
 }
 
 task checkstyle(type: Checkstyle) {
