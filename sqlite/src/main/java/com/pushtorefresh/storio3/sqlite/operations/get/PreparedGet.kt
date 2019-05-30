@@ -41,7 +41,7 @@ abstract class PreparedGet<Result> : PreparedOperation<Result, GetQuery> {
         query = null
     }
 
-    fun asFlow(): Flow<Result?> {
+    fun asFlow(): Flow<Result> {
         val tables = extractTables(query, rawQuery)
         val tags = extractTags(query, rawQuery)
 
